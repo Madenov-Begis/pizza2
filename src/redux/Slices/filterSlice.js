@@ -7,7 +7,8 @@ export const filteSlice = createSlice({
     activeSort: {
       name: 'популярности',
       sortID: 'rating',
-    }
+    },
+    pageCount: 1    
   },
   reducers: {
     setActiveCat(state, action) {
@@ -15,11 +16,14 @@ export const filteSlice = createSlice({
     },
     setActiveSort(state, action) {
       state.activeSort = action.payload 
+    },
+    setPageCount(state, action){
+      state.pageCount = action.payload
     }
   },
 })
 
 
-export const { setActiveCat, setActiveSort } = filteSlice.actions
+export const { setActiveCat, setActiveSort, setPageCount } = filteSlice.actions
 
 export default filteSlice.reducer 

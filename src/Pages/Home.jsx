@@ -1,19 +1,20 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Categories from '../components/Categories'
 import Sort from '../components/Sort'
 import PizzaCard from '../components/PizzaCard'
 import Pagination from '../components/Pagination'
 import MyLoader from '../components/Skeleton/Skeleton'
 import { useDispatch, useSelector } from 'react-redux'
-import { setActiveCat, setActiveSort } from '../redux/Slices/filterSlice'
+import { setActiveCat, setActiveSort, setPageCount } from '../redux/Slices/filterSlice'
+import { useNavigate } from 'react-router-dom'
 
 function Home() {
+  const navigate = useNavigate()
   const dispatch = useDispatch()
-  const {activeCat, activeSort} = useSelector((state) => state.filter)
+  const { activeCat, activeSort, pageCount } = useSelector((state) => state.filter)
   const searchValue = useSelector((state) => state.search.searchValue)
 
   const [pizza, setPizza] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
 
   const skeleton = [...new Array(3)].map((item, index) => (
@@ -21,14 +22,12 @@ function Home() {
   ))
   const pizzaItem = pizza.map((item) => <PizzaCard {...item} key={item.id} />)
 
-
-
+  const category = activeCat > 0 ? `category=${activeCat}` : ''
+  const search = searchValue ? `&search=${searchValue}` : ''
   async function getPizza() {
-    const category = activeCat > 0 ? `category=${activeCat}` : ''
-    const search = searchValue ? `&search=${searchValue}` : ''
 
     await fetch(
-      `https://645cdff7250a246ae310e149.mockapi.io/pizzas?${category}&sortBy=${activeSort.sortID}${search}&page=${currentPage}&limit=3`
+      `https://645cdff7250a246ae310e149.mockapi.io/pizzas?${category}&sortBy=${activeSort.sortID}${search}&page=${pageCount}&limit=3`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -40,7 +39,12 @@ function Home() {
 
   useEffect(() => {
     getPizza()
-  }, [activeCat, activeSort, searchValue, currentPage])
+  }, [activeCat, activeSort, searchValue, pageCount])
+
+  useEffect(() => {
+    const url = `?${category}&sortBy=${activeSort.sortID}&page=${pageCount}` 
+    navigate(url)
+  }, [activeCat, activeSort, pageCount])
 
   return (
     <>
@@ -56,7 +60,7 @@ function Home() {
       </div>
       <h2 className="content__title">Все пиццы</h2>
       <div className="content__items">{isLoading ? skeleton : pizzaItem}</div>
-      <Pagination setCurrentPage={(page) => setCurrentPage(page)} />
+      <Pagination setCurrentPage={(page) => dispatch(setPageCount(page))} />
     </>
   )
 }

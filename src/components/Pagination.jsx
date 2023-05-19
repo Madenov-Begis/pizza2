@@ -8,7 +8,7 @@ function PaginatioN({ setCurrentPage }) {
         count={4}
         color="primary"
         size="large"
-        onChange={(e, page) => {setCurrentPage(page)}}
+        onChange={(e, page) => setCurrentPage(page)}
       />
     </div>
   )
