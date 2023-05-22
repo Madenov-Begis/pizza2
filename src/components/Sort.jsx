@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
 
-function Sort({ onClickSort, activeSort }) {
-  const items = [{name: 'популярности', sortID: 'rating'}, {name: 'цене', sortID: 'price'}, {name: 'алфавиту', sortID: 'title'}]
-
+export const items = [
+ { name: 'популярности', sortID: 'rating' },
+ { name: 'цене', sortID: 'price' },
+ { name: 'алфавиту', sortID: 'title' },
+]
+function Sort({ onClickSort }) {
+  const activeSort = useSelector(state => state.filter.activeSort)
   const [visiblePopup, setVisiblePopup] = useState(false)
-
   const togglePopup = () => {
     setVisiblePopup(!visiblePopup)
   }
@@ -18,7 +22,7 @@ function Sort({ onClickSort, activeSort }) {
     <div className="sort">
       <div className="sort__label">
         <svg
-        className={visiblePopup ? 'rotated' : ''}
+          className={visiblePopup ? 'rotated' : ''}
           width="10"
           height="6"
           viewBox="0 0 10 6"
