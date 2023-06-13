@@ -12,6 +12,7 @@ import {
   setPageCount,
 } from '../redux/Slices/filterSlice'
 import { useNavigate } from 'react-router-dom'
+import { fetchPizzas } from '../redux/Slices/pizzaSlice'
 import qs from 'qs'
 
 function Home() {
@@ -22,14 +23,11 @@ function Home() {
     (state) => state.filter
   )
   const searchValue = useSelector((state) => state.search.searchValue)
-
-  const [pizza, setPizza] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { pizzas, status } = useSelector((state) => state.pizza)
 
   const skeleton = [...new Array(3)].map((item, index) => (
     <MyLoader key={index} />
   ))
-  const pizzaItem = pizza.map((item) => <PizzaCard {...item} key={item.id} />)
 
   useEffect(() => {
     if (window.location.search) {
@@ -48,15 +46,14 @@ function Home() {
     const category = activeCat > 0 ? `category=${activeCat}` : ''
     const search = searchValue ? `&search=${searchValue}` : ''
 
-    await fetch(
-      `https://645cdff7250a246ae310e149.mockapi.io/pizzas?${category}&sortBy=${activeSort.sortID}${search}&page=${pageCount}&limit=3`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setPizza(data)
-        setIsLoading(false)
+    dispatch(
+      fetchPizzas({
+        category,
+        search,
+        pageCount,
+        activeSort,
       })
-      .catch((err) => console.log(err))
+    )
   }
 
   useEffect(() => {
@@ -76,6 +73,8 @@ function Home() {
     isSearch.current = true
   }, [activeCat, activeSort, pageCount])
 
+  const pizzaItem = pizzas.map((item) => <PizzaCard {...item} key={item.id} />)
+
   return (
     <>
       <div className="content__top">
@@ -91,7 +90,9 @@ function Home() {
         />
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      <div className="content__items">{isLoading ? skeleton : pizzaItem}</div>
+      <div className="content__items">
+        {status === 'loading' ? skeleton : pizzaItem}
+      </div>
       <Pagination setCurrentPage={(page) => dispatch(setPageCount(page))} />
     </>
   )
